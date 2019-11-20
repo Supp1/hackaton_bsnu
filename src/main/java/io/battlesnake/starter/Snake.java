@@ -140,7 +140,6 @@ public class Snake {
             moveRequest.get("board").get("food").elements().forEachRemaining((obj) -> {
                 foods.add(new Coords(obj));
             });
-
             List<List<Coords>> bariersCoord = snakes.stream()
                     .filter((obj) -> {
                         if (obj.get("id").asText().trim() == mySnake.get("id").asText().trim()) {
@@ -160,38 +159,99 @@ public class Snake {
             bariersCoord.forEach((list) -> {
                 list.forEach(barriers::add);
             });
-
-            foods.sort((o1, o2) -> {
-                int res1 = Math.abs(o1.getX() - snakeHead.getX()) + Math.abs(o1.getY() - snakeHead.getY());
-                int res2 = Math.abs(o2.getX() - snakeHead.getX()) + Math.abs(o2.getY() - snakeHead.getY());
-                return res1 - res2;
-            });
-            LOG.info("**********SORTED FOOODS*********\n" + foods.toString());
-            int xDif = snakeHead.getX() - foods.get(0).getX();
-            int yDif = snakeHead.getY() - foods.get(0).getY();
-            if (yDif > 0) {
+            //FOOD
+            if (foods.size() != 0) {
+                foods.sort((o1, o2) -> {
+                    int res1 = Math.abs(o1.getX() - snakeHead.getX()) + Math.abs(o1.getY() - snakeHead.getY());
+                    int res2 = Math.abs(o2.getX() - snakeHead.getX()) + Math.abs(o2.getY() - snakeHead.getY());
+                    return res1 - res2;
+                });
+                LOG.info("**********SORTED FOOODS*********\n" + foods.toString());
+                int xDif = snakeHead.getX() - foods.get(0).getX();
+                int yDif = snakeHead.getY() - foods.get(0).getY();
+                if (yDif > 0) {
+                    if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+                        //ВВЕРХ
+                        LOG.info("*************IN VVERH 1*************");
+                        response.put("move", "up");
+                    }
+                } else if (yDif < 0) {
+                    if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+                        //ВНИЗ
+                        LOG.info("*************IN VNIZ 1*************");
+                        response.put("move", "down");
+                    }
+                } else if (xDif > 0) {
+                    if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
+                        LOG.info("*************IN VLEVO 1*************");
+                        //ВЛЕВО
+                        response.put("move", "left");
+                    }
+                } else if (xDif < 0) {
+                    if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
+                        LOG.info("*************IN VPRAVO 1*************");
+                        //ВПРАВО
+                        response.put("move", "right");
+                    }
+                }
+            }
+            //FOOD END
+            if (snakeHead.getX() == 0) {
+                if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
+                    //ВПРАВО
+                    response.put("move", "right");
+                }
                 if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
                     //ВВЕРХ
-                    LOG.info("*************IN VVERH 1*************");
                     response.put("move", "up");
                 }
-            } else if (yDif < 0) {
                 if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
                     //ВНИЗ
-                    LOG.info("*************IN VNIZ 1*************");
                     response.put("move", "down");
                 }
-            } else if (xDif > 0) {
+            }
+            if (snakeHead.getX() == BOARD_SIZE) {
+                if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+                    //ВВЕРХ
+                    response.put("move", "up");
+                }
                 if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
-                    LOG.info("*************IN VLEVO 1*************");
                     //ВЛЕВО
                     response.put("move", "left");
                 }
-            } else if (xDif < 0) {
+                if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+                    //ВНИЗ
+                    response.put("move", "down");
+                }
+
+            }
+            if (snakeHead.getY() == 0) {
                 if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
-                    LOG.info("*************IN VPRAVO 1*************");
                     //ВПРАВО
                     response.put("move", "right");
+                }
+                if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
+                    //ВЛЕВО
+                    response.put("move", "left");
+                }
+                if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+                    //ВНИЗ
+                    response.put("move", "down");
+                }
+
+            }
+            if (snakeHead.getY() == BOARD_SIZE) {
+                if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
+                    //ВПРАВО
+                    response.put("move", "right");
+                }
+                if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+                    //ВВЕРХ
+                    response.put("move", "up");
+                }
+                if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
+                    //ВЛЕВО
+                    response.put("move", "left");
                 }
             }
 //            if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
