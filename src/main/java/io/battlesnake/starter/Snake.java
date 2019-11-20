@@ -124,34 +124,46 @@ public class Snake {
          */
         public Map<String, String> move(JsonNode moveRequest) {
             Map<String, String> response = new HashMap<>();
+
             List<JsonNode> snakeBody = new ArrayList<>();
             List<JsonNode> snakes = new ArrayList<>();
-            List<JsonNode> barriers = new ArrayList<>();
+            List<Coords> barriers = new ArrayList<>();
+            List<JsonNode> foods = new ArrayList<>();
 
             JsonNode mySnake = moveRequest.get("you");
             mySnake.get("body").elements().forEachRemaining(snakeBody::add);
             Coords snakeHead = new Coords(snakeBody.get(0));
+
             moveRequest.get("board").get("snakes").elements().forEachRemaining((obj) -> {
-                LOG.info(obj.toString());
                 snakes.add(obj);
             });
-            barriers = snakes.stream().filter((obj) -> {
-                if (obj.get("id").asText().trim() == mySnake.get("id").asText().trim()) {
-                    return false;
-                }
-                return true;
-            }).collect(Collectors.toList());
-            if (snakeHead.getX() < BOARD_SIZE - 8) {
-                response.put("move", "up");
-            }
-            if (snakeHead.getY() < BOARD_SIZE - 8) {
+
+            barriers = snakes.stream()
+                    .filter((obj) -> {
+                        if (obj.get("id").asText().trim() == mySnake.get("id").asText().trim()) {
+                            return false;
+                        }
+                        return true;
+                    })
+                    .map((obj) -> obj.get("body"))
+                    .map(Coords::new)
+                    .collect(Collectors.toList());
+
+            if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
+                //ВПРАВО
                 response.put("move", "right");
             }
-            if (snakeHead.getX() > BOARD_SIZE - 3 && snakeHead.getY() < BOARD_SIZE - 3) {
-                response.put("move", "down");
-            }
-            if (snakeHead.getY() > BOARD_SIZE - 3) {
+            if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
+                //ВЛЕВО
                 response.put("move", "left");
+            }
+            if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+                //ВВЕРХ
+                response.put("move", "up");
+            }
+            if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+                //ВНИЗ
+                response.put("move", "down");
             }
             return response;
         }
@@ -170,5 +182,26 @@ public class Snake {
         private JsonNode getHead(JsonNode snake) {
             return snake.get("body").elements().next();
         }
+
+        private boolean isFree(List<Coords> bariers, int x, int y) {
+            Coords coord = new Coords(x, y);
+            return !(bariers.contains(coord))
+                    && coord.getX() >= 0 && coord.getX() <= 10
+                    && coord.getY() >= 0 && coord.getY() <= 10;
+        }
     }
 }
+
+
+//            if (snakeHead.getX() < BOARD_SIZE - 8) {
+//
+//            }
+//            if (snakeHead.getY() < BOARD_SIZE - 8) {
+//                response.put("move", "right");
+//            }
+//            if (snakeHead.getX() > BOARD_SIZE - 3 && snakeHead.getY() < BOARD_SIZE - 3) {
+//                response.put("move", "down");
+//            }
+//            if (snakeHead.getY() > BOARD_SIZE - 3) {
+//                response.put("move", "left");
+//            }
