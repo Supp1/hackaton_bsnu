@@ -128,7 +128,7 @@ public class Snake {
             List<JsonNode> snakeBody = new ArrayList<>();
             List<JsonNode> snakes = new ArrayList<>();
             List<Coords> barriers = new ArrayList<>();
-            List<JsonNode> foods = new ArrayList<>();
+            List<Coords> foods = new ArrayList<>();
 
             JsonNode mySnake = moveRequest.get("you");
             mySnake.get("body").elements().forEachRemaining(snakeBody::add);
@@ -136,6 +136,9 @@ public class Snake {
 
             moveRequest.get("board").get("snakes").elements().forEachRemaining((obj) -> {
                 snakes.add(obj);
+            });
+            moveRequest.get("board").get("food").elements().forEachRemaining((obj) -> {
+                foods.add(new Coords(obj));
             });
 
             List<List<Coords>> bariersCoord = snakes.stream()
@@ -157,18 +160,26 @@ public class Snake {
             bariersCoord.forEach((list) -> {
                 list.forEach(barriers::add);
             });
-            LOG.debug(barriers.toString());
+
+            foods.sort((o1, o2) -> {
+                int res1 = Math.abs(o1.getX() - snakeHead.getX()) + Math.abs(o1.getY() - snakeHead.getY());
+                int res2 = Math.abs(o2.getX() - snakeHead.getX()) + Math.abs(o2.getY() - snakeHead.getY());
+                return res1 - res2;
+            });
+            LOG.info("**********SORTED FOOODS*********\n" + foods.toString());
             if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
                 //ВПРАВО
                 response.put("move", "right");
-            } else if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+            }
+            if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
                 //ВВЕРХ
                 response.put("move", "up");
             }
             if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
                 //ВЛЕВО
                 response.put("move", "left");
-            } else if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+            }
+            if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
                 //ВНИЗ
                 response.put("move", "down");
             }
@@ -193,8 +204,8 @@ public class Snake {
         private boolean isFree(List<Coords> bariers, int x, int y) {
             Coords coord = new Coords(x, y);
             return !(bariers.contains(coord))
-                    && coord.getX() >= 0 && coord.getX() <= 10
-                    && coord.getY() >= 0 && coord.getY() <= 10;
+                    && coord.getX() >= 0 && coord.getX() <= BOARD_SIZE
+                    && coord.getY() >= 0 && coord.getY() <= BOARD_SIZE;
         }
     }
 }
