@@ -10,9 +10,7 @@ import spark.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-import static spark.Spark.port;
-import static spark.Spark.post;
-import static spark.Spark.get;
+import static spark.Spark.*;
 
 /**
  * Snake server that deals with requests from the snake engine.
@@ -34,12 +32,12 @@ public class Snake {
         if (port != null) {
             LOG.info("Found system provided port: {}", port);
         } else {
-            LOG.info("Using default port: {}", port);
             port = "8080";
+            LOG.info("Using default port: {}", port);
         }
         port(Integer.parseInt(port));
-        get("/", (req, res) -> "Battlesnake documentation can be found at " + 
-            "<a href=\"https://docs.battlesnake.io\">https://docs.battlesnake.io</a>.");
+        get("/", (req, res) -> "Battlesnake documentation can be found at " +
+                "<a href=\"https://docs.battlesnake.io\">https://docs.battlesnake.io</a>.");
         post("/start", HANDLER::process, JSON_MAPPER::writeValueAsString);
         post("/ping", HANDLER::process, JSON_MAPPER::writeValueAsString);
         post("/move", HANDLER::process, JSON_MAPPER::writeValueAsString);
@@ -92,7 +90,7 @@ public class Snake {
          * /ping is called by the play application during the tournament or on play.battlesnake.io to make sure your
          * snake is still alive.
          *
-         * @param pingRequest a map containing the JSON sent to this snake. See the spec for details of what this contains.
+         * @param //pingRequest a map containing the JSON sent to this snake. See the spec for details of what this contains.
          * @return an empty response.
          */
         public Map<String, String> ping() {
@@ -119,6 +117,7 @@ public class Snake {
          */
         public Map<String, String> move(JsonNode moveRequest) {
             Map<String, String> response = new HashMap<>();
+            LOG.info(moveRequest.asText());
             response.put("move", "right");
             return response;
         }
@@ -134,5 +133,4 @@ public class Snake {
             return response;
         }
     }
-
 }
