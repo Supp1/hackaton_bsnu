@@ -169,50 +169,29 @@ public class Snake {
             LOG.info("**********SORTED FOOODS*********\n" + foods.toString());
             int xDif = snakeHead.getX() - foods.get(0).getX();
             int yDif = snakeHead.getY() - foods.get(0).getY();
-            if (Math.abs(xDif) > Math.abs(yDif)) {
-                LOG.info("*************IN USLOVIE 1*************");
-                if (yDif > 0) {
-                    if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
-                        //ВВЕРХ
-                        LOG.info("*************IN VVERH 1*************");
-                        response.put("move", "up");
-                    }
-                } else if (yDif < 0) {
-                    if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
-                        //ВНИЗ
-                        LOG.info("*************IN VNIZ 1*************");
-                        response.put("move", "down");
-                    }
-                } else {
-                    if (xDif > 0) {
-                        if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
-                            LOG.info("*************IN VLEVO 1*************");
-                            //ВЛЕВО
-                            response.put("move", "left");
-                        }
-                    }
-                    if (xDif < 0) {
-                        if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
-                            LOG.info("*************IN VPRAVO 1*************");
-                            //ВПРАВО
-                            response.put("move", "right");
-                        }
-                    }
+            if (yDif > 0) {
+                if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+                    //ВВЕРХ
+                    LOG.info("*************IN VVERH 1*************");
+                    response.put("move", "up");
                 }
-            } else {
-                LOG.info("*************IN USLOVIE 2*************");
-                if (xDif > 0) {
-                    if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
-                        LOG.info("*************IN VLEVO 1*************");
-                        //ВЛЕВО
-                        response.put("move", "left");
-                    }
-                } else {
-                    if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
-                        LOG.info("*************IN VPRAVO 1*************");
-                        //ВПРАВО
-                        response.put("move", "right");
-                    }
+            } else if (yDif < 0) {
+                if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+                    //ВНИЗ
+                    LOG.info("*************IN VNIZ 1*************");
+                    response.put("move", "down");
+                }
+            } else if (xDif > 0) {
+                if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
+                    LOG.info("*************IN VLEVO 1*************");
+                    //ВЛЕВО
+                    response.put("move", "left");
+                }
+            } else if (xDif < 0) {
+                if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
+                    LOG.info("*************IN VPRAVO 1*************");
+                    //ВПРАВО
+                    response.put("move", "right");
                 }
             }
 //            if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
