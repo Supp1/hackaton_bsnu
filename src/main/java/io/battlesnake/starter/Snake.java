@@ -125,14 +125,14 @@ public class Snake {
         public Map<String, String> move(JsonNode moveRequest) {
             Map<String, String> response = new HashMap<>();
 
-            List<JsonNode> snakeBody = new ArrayList<>();
+            List<JsonNode> mySnakeBody = new ArrayList<>();
             List<JsonNode> snakes = new ArrayList<>();
             List<Coords> barriers = new ArrayList<>();
             List<Coords> foods = new ArrayList<>();
 
             JsonNode mySnake = moveRequest.get("you");
-            mySnake.get("body").elements().forEachRemaining(snakeBody::add);
-            Coords snakeHead = new Coords(snakeBody.get(0));
+            mySnake.get("body").elements().forEachRemaining(mySnakeBody::add);
+            Coords snakeHead = new Coords(mySnakeBody.get(0));
 
             moveRequest.get("board").get("snakes").elements().forEachRemaining((obj) -> {
                 snakes.add(obj);
@@ -159,6 +159,8 @@ public class Snake {
             bariersCoord.forEach((list) -> {
                 list.forEach(barriers::add);
             });
+            barriers.addAll(1, mySnakeBody.stream().map(Coords::new).collect(Collectors.toList()));
+            LOG.info("***********BARRRRIERRS***********\n" + barriers.toString());
             //FOOD
             if (foods.size() != 0) {
                 foods.sort((o1, o2) -> {
