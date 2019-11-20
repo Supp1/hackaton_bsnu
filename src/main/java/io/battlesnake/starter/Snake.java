@@ -7,7 +7,11 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -120,30 +124,35 @@ public class Snake {
          */
         public Map<String, String> move(JsonNode moveRequest) {
             Map<String, String> response = new HashMap<>();
-            moveRequest.get("board").get("food").elements();
             List<JsonNode> snakeBody = new ArrayList<>();
+            List<JsonNode> snakes = new ArrayList<>();
             List<JsonNode> barriers = new ArrayList<>();
-            //Iterator<JsonNode> snakes = moveRequest.get("snakes").elements();
-            moveRequest.get("snakes").get("body").elements().forEachRemaining(barriers::add);
-            //moveRequest.get("you").get("body").elements().forEachRemaining(snakeBody::add);
-            JsonNode snakeHead = moveRequest.get("you").get("body").elements().next();
-            LOG.info(snakeHead.asText());
-            if (snakeHead.get("x").asInt() < BOARD_SIZE - 8) {
+
+            JsonNode mySnake = moveRequest.get("you");
+            mySnake.get("body").elements().forEachRemaining(snakeBody::add);
+            Coords snakeHead = new Coords(snakeBody.get(0));
+            moveRequest.get("board").get("snakes").elements().forEachRemaining((obj) -> {
+                LOG.info(obj.toString());
+                snakes.add(obj);
+            });
+            barriers = snakes.stream().filter((obj) -> {
+                if (obj.get("id").asText().trim() == mySnake.get("id").asText().trim()) {
+                    return false;
+                }
+                return true;
+            }).collect(Collectors.toList());
+            if (snakeHead.getX() < BOARD_SIZE - 8) {
                 response.put("move", "up");
             }
-            if (snakeHead.get("y").asInt() < BOARD_SIZE - 8) {
+            if (snakeHead.getY() < BOARD_SIZE - 8) {
                 response.put("move", "right");
             }
-            if (snakeHead.get("x").asInt() > BOARD_SIZE - 3 && snakeBody.get(0).get("y").asInt() < BOARD_SIZE - 3) {
+            if (snakeHead.getX() > BOARD_SIZE - 3 && snakeHead.getY() < BOARD_SIZE - 3) {
                 response.put("move", "down");
             }
-            if (snakeHead.get("y").asInt() > BOARD_SIZE - 3) {
+            if (snakeHead.getY() > BOARD_SIZE - 3) {
                 response.put("move", "left");
             }
-            if (moveRequest.get("turn").asInt() > 100) {
-                response.put("move", "left");
-            }
-            //LOG.info(moveRequest.asText());
             return response;
         }
 
