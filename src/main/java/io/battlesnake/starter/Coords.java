@@ -31,6 +31,14 @@ public class Coords {
         this.y = node.get("y").asInt();
     }
 
+    @Override
+    public String toString() {
+        return "Coords{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof Coords)) return false;

@@ -138,7 +138,7 @@ public class Snake {
                 snakes.add(obj);
             });
 
-            barriers = snakes.stream()
+            List<List<Coords>> bariersCoord = snakes.stream()
                     .filter((obj) -> {
                         if (obj.get("id").asText().trim() == mySnake.get("id").asText().trim()) {
                             return false;
@@ -146,22 +146,29 @@ public class Snake {
                         return true;
                     })
                     .map((obj) -> obj.get("body"))
-                    .map(Coords::new)
+                    .map((obj) -> {
+                        List<Coords> arr = new ArrayList<>();
+                        obj.elements().forEachRemaining((coordinate) -> {
+                            arr.add(new Coords(coordinate));
+                        });
+                        return arr;
+                    })
                     .collect(Collectors.toList());
-
+            bariersCoord.forEach((list) -> {
+                list.forEach(barriers::add);
+            });
+            LOG.debug(barriers.toString());
             if (isFree(barriers, snakeHead.getX() + 1, snakeHead.getY())) {
                 //ВПРАВО
                 response.put("move", "right");
+            } else if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
+                //ВВЕРХ
+                response.put("move", "up");
             }
             if (isFree(barriers, snakeHead.getX() - 1, snakeHead.getY())) {
                 //ВЛЕВО
                 response.put("move", "left");
-            }
-            if (isFree(barriers, snakeHead.getX(), snakeHead.getY() - 1)) {
-                //ВВЕРХ
-                response.put("move", "up");
-            }
-            if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
+            } else if (isFree(barriers, snakeHead.getX(), snakeHead.getY() + 1)) {
                 //ВНИЗ
                 response.put("move", "down");
             }
