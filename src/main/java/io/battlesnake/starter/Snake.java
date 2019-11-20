@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static spark.Spark.*;
 
@@ -21,6 +20,8 @@ public class Snake {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Handler HANDLER = new Handler();
     private static final Logger LOG = LoggerFactory.getLogger(Snake.class);
+
+    public static int BOARD_SIZE;
 
     /**
      * Main entry point.
@@ -105,7 +106,9 @@ public class Snake {
          */
         public Map<String, String> start(JsonNode startRequest) {
             Map<String, String> response = new HashMap<>();
-            response.put("color", "#ff00ff");
+            BOARD_SIZE = startRequest.get("board").get("width").asInt() - 1;
+            LOG.info(Integer.toString(BOARD_SIZE));
+            response.put("color", "#420069");
             return response;
         }
 
@@ -117,8 +120,30 @@ public class Snake {
          */
         public Map<String, String> move(JsonNode moveRequest) {
             Map<String, String> response = new HashMap<>();
-            LOG.info(moveRequest.asText());
-            response.put("move", "right");
+            moveRequest.get("board").get("food").elements();
+            List<JsonNode> snakeBody = new ArrayList<>();
+            List<JsonNode> barriers = new ArrayList<>();
+            //Iterator<JsonNode> snakes = moveRequest.get("snakes").elements();
+            moveRequest.get("snakes").get("body").elements().forEachRemaining(barriers::add);
+            //moveRequest.get("you").get("body").elements().forEachRemaining(snakeBody::add);
+            JsonNode snakeHead = moveRequest.get("you").get("body").elements().next();
+            LOG.info(snakeHead.asText());
+            if (snakeHead.get("x").asInt() < BOARD_SIZE - 8) {
+                response.put("move", "up");
+            }
+            if (snakeHead.get("y").asInt() < BOARD_SIZE - 8) {
+                response.put("move", "right");
+            }
+            if (snakeHead.get("x").asInt() > BOARD_SIZE - 3 && snakeBody.get(0).get("y").asInt() < BOARD_SIZE - 3) {
+                response.put("move", "down");
+            }
+            if (snakeHead.get("y").asInt() > BOARD_SIZE - 3) {
+                response.put("move", "left");
+            }
+            if (moveRequest.get("turn").asInt() > 100) {
+                response.put("move", "left");
+            }
+            //LOG.info(moveRequest.asText());
             return response;
         }
 
@@ -131,6 +156,10 @@ public class Snake {
         public Map<String, String> end(JsonNode endRequest) {
             Map<String, String> response = new HashMap<>();
             return response;
+        }
+
+        private JsonNode getHead(JsonNode snake) {
+            return snake.get("body").elements().next();
         }
     }
 }
